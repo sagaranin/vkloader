@@ -2,15 +2,24 @@ package ru.larnerweb.vkloader.entity.vk;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class FriendsGetResponse {
-    Friends friends;
+import java.io.Serializable;
 
-    public Friends getFriends() {
-        return friends;
+@JsonIgnoreProperties(ignoreUnknown = false)
+public class FriendsGetResponse  implements Serializable {
+    Response response;
+
+    public Response getResponse() {
+        return response;
     }
 
-    public void setFriends(Friends friends) {
-        this.friends = friends;
+    public void setResponse(Response response) {
+        this.response = response;
+    }
+
+    @Override
+    public String toString() {
+        return "FriendsGetResponse{" +
+                "response=" + response +
+                '}';
     }
 }
