@@ -56,10 +56,7 @@ public class InMemoryGraphService {
      * @return true or false
      */
     public boolean isExists(int id) {
-        if (adjacencyList[id] != null)
-            return true;
-        else
-            return false;
+        return adjacencyList[id] != null;
     }
 
 
@@ -83,8 +80,8 @@ public class InMemoryGraphService {
 
     /**
      * Search path in graph between two people
-     * @param from
-     * @param to
+     * @param from - start person id
+     * @param to - target person id
      * @return - list of people
      */
     public List<Integer> bfs(int from, int to){
@@ -101,12 +98,12 @@ public class InMemoryGraphService {
 
         if (isExists(from) && isExists(to)) {
             boolean found = false;
-            int iter = 0;
+            int iteration = 0;
             while (!found) {
-                iter++;
+                iteration++;
 
-                if (iter % 100000 == 0)
-                    log.info("BFS ({}->???->{}) | iter: {},\tqueue size: {}, trace\\cache size: {}", from, to, iter, queue.size(), trace.size());
+                if (iteration % 100000 == 0)
+                    log.info("BFS ({}->???->{}) | iteration: {},\tqueue size: {}, trace\\cache size: {}", from, to, iteration, queue.size(), trace.size());
 
                 int processedId = queue.remove();
                 int[] friends = getFriends(processedId);
