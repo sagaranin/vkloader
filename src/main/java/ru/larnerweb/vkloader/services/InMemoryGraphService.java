@@ -95,9 +95,9 @@ public class InMemoryGraphService {
         Map<Integer, Integer> trace = new HashMap<>();
         List<Integer> result = new LinkedList<>();
         LinkedList<Integer> queue = new LinkedList<>();
-        Set<Integer> queried = new HashSet<>();
 
         queue.add(from);
+        trace.put(from, null);
 
         if (isExists(from) && isExists(to)) {
             boolean found = false;
@@ -106,12 +106,12 @@ public class InMemoryGraphService {
                 iter++;
 
                 if (iter % 100000 == 0)
-                    log.info("BFS ({}->{}) | iter: {},\tqueried size: {},\tqueue size: {}, trace size: {}", from, to, iter, queried.size(), queue.size(), trace.size());
+                    log.info("BFS ({}->???->{}) | iter: {},\tqueue size: {}, trace\\cache size: {}", from, to, iter, queue.size(), trace.size());
 
                 int processedId = queue.remove();
                 int[] friends = getFriends(processedId);
                 if (friends == null) {
-                    queried.add(processedId);
+                    trace.put(processedId, null);
                     continue;
                 }
 
@@ -124,14 +124,11 @@ public class InMemoryGraphService {
                         break;
                     }
                     // add to queue
-                    if (!queried.contains(i)) {
+                    if (!trace.containsKey(i)) {
                         queue.add(i);
                         trace.put(i, processedId);
-                        queried.add(i);
                     }
                 }
-
-                queried.add(processedId);
             }
 
             log.info("Path between {} and {} found ({}). Process took {} seconds.",  from, to, result, (System.currentTimeMillis() - startTime)/1000);
