@@ -15,6 +15,10 @@
         <relativePath/>
     </parent>
 
+    <properties>
+        <start-class>ru.larnerweb.vkloader.Application</start-class>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

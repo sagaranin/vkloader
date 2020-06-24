@@ -29,11 +29,12 @@ public class VKClientService {
 
     public List<Integer> getFriends(int id){
         String key = keys.split(",")[getRandomNumberInRange(0, keys.split(",").length-1)];
-        log.info("Key: {}",key);
-        String url = String.format("https://api.vk.com/method/friends.get?user_id=%s&count=10000&access_token=%s&v=5.110", id, key);
 
-        log.info("Using url: {}", url);
-        FriendsGetResponse fgr = restTemplate.getForObject(url, FriendsGetResponse.class);
+        FriendsGetResponse fgr = restTemplate.getForObject(
+                "https://api.vk.com/method/friends.get?user_id={id}&count=10000&access_token={key}&v=5.110",
+                    FriendsGetResponse.class,
+                        id, key
+        );
 
         log.info("Result: {}", fgr);
         if (fgr != null && fgr.getResponse() != null){
@@ -43,7 +44,6 @@ public class VKClientService {
         }
 
     }
-
 
     private int getRandomNumberInRange(int min, int max) {
 

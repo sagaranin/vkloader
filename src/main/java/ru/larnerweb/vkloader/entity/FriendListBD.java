@@ -14,7 +14,7 @@ import java.util.Objects;
 
 
 @Entity
-@Table(name = "friends_bidirectional")
+@Table(name = "friends_bidirectional_mv")
 @TypeDefs({@TypeDef(name = "int-array", typeClass = IntArrayType.class)})
 public class FriendListBD {
     @Id

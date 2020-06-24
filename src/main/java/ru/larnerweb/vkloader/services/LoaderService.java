@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *
  */
-@Service
+//@Service
 public class LoaderService {
 
     private static final Logger log = LoggerFactory.getLogger(LoaderService.class);
@@ -35,16 +35,15 @@ public class LoaderService {
     @Autowired
     FriendListRepository friendListRepository;
 
-
-    @Scheduled(fixedDelay = 200L)
+    @Scheduled(fixedDelay = 100L)
     private void load(){
+
         String nextId = redisService.pop();
         log.info("Fetching {} from VK", nextId);
         List<Integer> friends = vkClientService.getFriends(Integer.parseInt(nextId));
 
         try {
             FriendList fl = new FriendList(Integer.parseInt(nextId), friends);
-            log.info(fl.toString());
             friendListRepository.save(fl);
             redisService.addToScanned(nextId);
 
@@ -58,7 +57,6 @@ public class LoaderService {
         }
 
     }
-
 
     @PostConstruct
     private void init() {

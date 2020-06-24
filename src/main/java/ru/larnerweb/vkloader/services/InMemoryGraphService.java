@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.larnerweb.vkloader.entity.FriendListBD;
@@ -17,9 +16,10 @@ import ru.larnerweb.vkloader.repository.FriendListBDRepository;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.util.*;
 
 
-//@Service
+@Service
 public class InMemoryGraphService {
 
     @Autowired
@@ -27,9 +27,9 @@ public class InMemoryGraphService {
 
     private static final Logger log = LoggerFactory.getLogger(InMemoryGraphService.class);
 
-    private int[][] adjacencyList;
+    private static int[][] adjacencyList;
     private static String storePath;
-    private static int size;
+    private static int appGraphSize;
     Kryo kryo;
 
     @Value("${app.graph.storePath}")
@@ -39,7 +39,7 @@ public class InMemoryGraphService {
 
     @Value("${app.graph.size}")
     public void setSize(int size) {
-        InMemoryGraphService.size = size;
+        InMemoryGraphService.appGraphSize = size;
     }
 
     public InMemoryGraphService() {
@@ -71,15 +71,81 @@ public class InMemoryGraphService {
         adjacencyList[id] = friends;
     }
 
-    public int[] get(int id){
+    /**
+     * Get friend list by Id
+     * @param id - user Id
+     * @return  - user's friend list
+     */
+    public int[] getFriends(int id){
         return adjacencyList[id];
+    }
+
+
+    public List<Integer> bfs(int from, int to){
+        long startTime = System.currentTimeMillis();
+        log.info("Starting search path between {} and {}",  from, to);
+
+        List<Integer> result = new LinkedList<>();
+        LinkedList<Integer> queue = new LinkedList<>();
+        Set<Integer> queried = new HashSet<>();
+
+        queue.add(from);
+        result.add(from);
+
+        if (isExists(from) && isExists(to)) {
+            boolean found = false;
+            int iter = 0;
+            while (!found) {
+                iter++;
+                if (iter % 100000 == 0) log.info("BFS: iter: {},\tqueried size: {},\tqueue size: {}", iter, queried.size(), queue.size());
+
+                int nextId = queue.remove();
+                int[] friends = getFriends(nextId);
+                if (friends == null) {
+                    queried.add(nextId);
+                    continue;
+                }
+
+                queried.add(nextId);
+
+                for (int i : friends) {
+                    // check if target found
+                    if (i == to) {
+                        result.add(i);
+                        found = true;
+                        break;
+                    }
+                    // add to queue
+                    if (!queried.contains(i)) {
+                        queue.add(i);
+                        queried.add(i);
+                    }
+                }
+            }
+
+            log.info("Path between {} and {} found ({}). Process took {} seconds.",  from, to, result, (System.currentTimeMillis() - startTime)/1000);
+            return result;
+        } else {
+            log.info("{} or {} not found in graph",  from, to);
+            return null;
+        }
+    }
+
+    @Scheduled(fixedRate = 1000L)
+    public void testBfs(){
+
+        bfs(40150545, 82979);
+        bfs(1547029, 166757315);
+        bfs(1547029, 20811253);
+        bfs(1547029, 770456);
+        System.exit(0);
     }
 
 
     /**
      * dump array to the disk using {storePath} variable
      */
-    @Scheduled(cron = "0 0 * * * ?")  // run every hour
+//    @Scheduled(cron = "0 0 * * * ?")  // run every hour
     public void serialize(){
         final String SUFFIX = ".tmp";
         String dumpTmpPath = storePath + SUFFIX;
@@ -146,7 +212,7 @@ public class InMemoryGraphService {
         }
         else {
             log.info("Dump file not found, start loading records from database...");
-            adjacencyList = new int[size][];
+            adjacencyList = new int[appGraphSize][];
             readFromDB();
             log.info("Creating fresh dump...");
             serialize();
@@ -155,12 +221,13 @@ public class InMemoryGraphService {
         log.info("Service instantiation... done!");
     }
 
+    @Scheduled(cron = "0 0 0 * * ?")  // run every midnight
     public void readFromDB() {
         int currentPage = 0;
         while (true) {
 
             Page<FriendListBD> page =
-                    friendsListBDRepository.findAll(PageRequest.of(currentPage, 1_000_000, Sort.by("id")));
+                    friendsListBDRepository.findAll(PageRequest.of(currentPage, 1_000_000));
             log.info("Fetching page {} of {}", currentPage, page.getTotalPages());
             if (currentPage > page.getTotalPages()) break;
 
@@ -169,6 +236,8 @@ public class InMemoryGraphService {
             }
             currentPage++;
         }
+
+        serialize();
     }
 
 
