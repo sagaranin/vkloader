@@ -81,17 +81,23 @@ public class InMemoryGraphService {
         return adjacencyList[id];
     }
 
-
+    /**
+     * Search path in graph between two people
+     * @param from
+     * @param to
+     * @return - list of people
+     */
     public List<Integer> bfs(int from, int to){
         long startTime = System.currentTimeMillis();
         log.info("Starting search path between {} and {}",  from, to);
 
+
+        Map<Integer, Integer> trace = new HashMap<>();
         List<Integer> result = new LinkedList<>();
         LinkedList<Integer> queue = new LinkedList<>();
         Set<Integer> queried = new HashSet<>();
 
         queue.add(from);
-        result.add(from);
 
         if (isExists(from) && isExists(to)) {
             boolean found = false;
@@ -100,30 +106,32 @@ public class InMemoryGraphService {
                 iter++;
 
                 if (iter % 100000 == 0)
-                    log.info("BFS ({}->{}) | iter: {},\tqueried size: {},\tqueue size: {}", from, to, iter, queried.size(), queue.size());
+                    log.info("BFS ({}->{}) | iter: {},\tqueried size: {},\tqueue size: {}, trace size: {}", from, to, iter, queried.size(), queue.size(), trace.size());
 
-                int nextId = queue.remove();
-                int[] friends = getFriends(nextId);
+                int processedId = queue.remove();
+                int[] friends = getFriends(processedId);
                 if (friends == null) {
-                    queried.add(nextId);
+                    queried.add(processedId);
                     continue;
                 }
-
-                queried.add(nextId);
 
                 for (int i : friends) {
                     // check if target found
                     if (i == to) {
-                        result.add(i);
+                        result.addAll(traverse(trace, processedId));
+                        result.add(to);
                         found = true;
                         break;
                     }
                     // add to queue
                     if (!queried.contains(i)) {
                         queue.add(i);
+                        trace.put(i, processedId);
                         queried.add(i);
                     }
                 }
+
+                queried.add(processedId);
             }
 
             log.info("Path between {} and {} found ({}). Process took {} seconds.",  from, to, result, (System.currentTimeMillis() - startTime)/1000);
@@ -132,6 +140,25 @@ public class InMemoryGraphService {
             log.info("{} or {} not found in graph",  from, to);
             return null;
         }
+    }
+
+    private List<Integer> traverse(Map<Integer, Integer> trace, int id){
+        LinkedList<Integer> result = new LinkedList<>();
+        boolean rootReached = false;
+        Integer nextId = id;
+
+        while (!rootReached){
+            result.addFirst(nextId);
+            Integer parent = trace.get(nextId);
+
+            if (parent != null)
+                nextId = parent;
+            else
+                rootReached = true;
+            log.info("Traverse {}", result);
+        }
+
+        return result;
     }
 
 
