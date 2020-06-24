@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.larnerweb.vkloader.entity.FriendListBD;
@@ -97,7 +98,9 @@ public class InMemoryGraphService {
             int iter = 0;
             while (!found) {
                 iter++;
-                if (iter % 100000 == 0) log.info("BFS: iter: {},\tqueried size: {},\tqueue size: {}", iter, queried.size(), queue.size());
+
+                if (iter % 100000 == 0)
+                    log.info("BFS ({}->{}) | iter: {},\tqueried size: {},\tqueue size: {}", from, to, iter, queried.size(), queue.size());
 
                 int nextId = queue.remove();
                 int[] friends = getFriends(nextId);
@@ -129,16 +132,6 @@ public class InMemoryGraphService {
             log.info("{} or {} not found in graph",  from, to);
             return null;
         }
-    }
-
-    @Scheduled(fixedRate = 1000L)
-    public void testBfs(){
-
-        bfs(40150545, 82979);
-        bfs(1547029, 166757315);
-        bfs(1547029, 20811253);
-        bfs(1547029, 770456);
-        System.exit(0);
     }
 
 
@@ -227,7 +220,7 @@ public class InMemoryGraphService {
         while (true) {
 
             Page<FriendListBD> page =
-                    friendsListBDRepository.findAll(PageRequest.of(currentPage, 1_000_000));
+                    friendsListBDRepository.findAll(PageRequest.of(currentPage, 1_000_000, Sort.by("id")));
             log.info("Fetching page {} of {}", currentPage, page.getTotalPages());
             if (currentPage > page.getTotalPages()) break;
 
@@ -236,8 +229,6 @@ public class InMemoryGraphService {
             }
             currentPage++;
         }
-
-        serialize();
     }
 
 
