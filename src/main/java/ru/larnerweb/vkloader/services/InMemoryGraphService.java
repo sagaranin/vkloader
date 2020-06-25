@@ -18,6 +18,8 @@ import ru.larnerweb.vkloader.repository.FriendListBDRepository;
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -78,7 +80,7 @@ public class InMemoryGraphService {
         return adjacencyList[id];
     }
 
-    /**
+    /** TODO: + int[] skipList
      * Search path in graph between two people
      * @param from - start person id
      * @param to - target person id
@@ -103,7 +105,7 @@ public class InMemoryGraphService {
                 iteration++;
 
                 if (iteration % 100000 == 0)
-                    log.info("BFS ({}->???->{}) | iteration: {},\tqueue size: {}, trace\\cache size: {}", from, to, iteration, queue.size(), trace.size());
+                    log.info("BFS ({}->???->{}) | iteration: {},\tqueue size: {},\ttrace\\cache size: {}", from, to, iteration, queue.size(), trace.size());
 
                 int processedId = queue.remove();
                 int[] friends = getFriends(processedId);
@@ -128,7 +130,7 @@ public class InMemoryGraphService {
                 }
             }
 
-            log.info("Path between {} and {} found ({}). Process took {} seconds.",  from, to, result, (System.currentTimeMillis() - startTime)/1000);
+            log.info("Path between {} and {} found: {}. Process took {} seconds.",  from, to, result.stream().map(String::valueOf).collect(Collectors.joining(" -> ")), (System.currentTimeMillis() - startTime)/1000);
             return result;
         } else {
             log.info("{} or {} not found in graph",  from, to);
@@ -235,7 +237,7 @@ public class InMemoryGraphService {
         log.info("Service instantiation... done!");
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")  // run every midnight
+    @Scheduled(cron = "0 0 3 * * ?")  // run every 3:00
     public void readFromDB() {
         int currentPage = 0;
         while (true) {
