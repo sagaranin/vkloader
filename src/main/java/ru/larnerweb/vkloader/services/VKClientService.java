@@ -38,8 +38,8 @@ public class VKClientService {
         );
 
         log.info("friends.get result: {}", fgr);
-        if (fgr != null && fgr.getFriendsGet() != null){
-            return fgr.getFriendsGet().getItems();
+        if (fgr != null && fgr.getResponse() != null){
+            return fgr.getResponse().getItems();
         } else {
             return new ArrayList<>();
         }
