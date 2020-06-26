@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = false)
-public class Response implements Serializable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class FriendsGet implements Serializable {
     Integer count;
     List<Integer>  items;
 

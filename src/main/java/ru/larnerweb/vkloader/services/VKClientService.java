@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.larnerweb.vkloader.entity.vk.FriendsGetResponse;
+import ru.larnerweb.vkloader.entity.vk.UsersGetResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +37,29 @@ public class VKClientService {
                         id, key
         );
 
-        log.info("Result: {}", fgr);
-        if (fgr != null && fgr.getResponse() != null){
-            return fgr.getResponse().getItems();
+        log.info("friends.get result: {}", fgr);
+        if (fgr != null && fgr.getFriendsGet() != null){
+            return fgr.getFriendsGet().getItems();
         } else {
             return new ArrayList<>();
         }
 
+    }
+
+    public Integer getIdByDomain(String domain) {
+        String key = keys.split(",")[getRandomNumberInRange(0, keys.split(",").length-1)];
+
+        UsersGetResponse ugr = restTemplate.getForObject(
+                "https://api.vk.com/method/users.get?user_ids={id}&access_token={key}&v=5.110",
+                UsersGetResponse.class,
+                domain, key);
+
+        log.info("users.get result: {}", ugr);
+        if (ugr != null && ugr.getResponse() != null){
+            return ugr.getResponse().get(0).getId();
+        } else {
+            return null;
+        }
     }
 
     private int getRandomNumberInRange(int min, int max) {
