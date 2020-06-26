@@ -18,7 +18,6 @@ import ru.larnerweb.vkloader.repository.FriendListBDRepository;
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -33,6 +32,8 @@ public class InMemoryGraphService {
     private static int[][] adjacencyList;
     private static String storePath;
     private static int appGraphSize;
+    public static int nodeCount;
+    public static long edgeCount;
     Kryo kryo;
 
     @Value("${app.graph.storePath}")
@@ -138,6 +139,12 @@ public class InMemoryGraphService {
         }
     }
 
+    /**
+     *
+     * @param trace
+     * @param id
+     * @return
+     */
     private List<Integer> traverse(Map<Integer, Integer> trace, int id){
         LinkedList<Integer> result = new LinkedList<>();
         boolean rootReached = false;
@@ -161,7 +168,7 @@ public class InMemoryGraphService {
     /**
      * dump array to the disk using {storePath} variable
      */
-//    @Scheduled(cron = "0 0 * * * ?")  // run every hour
+    @Scheduled(cron = "0 0 6 * * ?")  // run every 6:00
     public void serialize(){
         final String SUFFIX = ".tmp";
         String dumpTmpPath = storePath + SUFFIX;
@@ -229,16 +236,33 @@ public class InMemoryGraphService {
         else {
             log.info("Dump file not found, start loading records from database...");
             adjacencyList = new int[appGraphSize][];
-            readFromDB();
+            updateFromDB();
             log.info("Creating fresh dump...");
             serialize();
         }
+        updateGraphInfo();
 
         log.info("Service instantiation... done!");
     }
 
+    /**
+     * Update nodeCount and edgeCount variables
+     */
+    private void updateGraphInfo() {
+        log.info("Updating graph info...");
+        for (int[] i : adjacencyList) {
+            if (i != null) {
+                nodeCount++;
+                edgeCount += i.length;
+            }
+        }
+    }
+
+    /**
+     * Read all rows from DB and update/replace items in adjacencyList
+     */
     @Scheduled(cron = "0 0 3 * * ?")  // run every 3:00
-    public void readFromDB() {
+    public void updateFromDB() {
         int currentPage = 0;
         while (true) {
 
@@ -252,6 +276,7 @@ public class InMemoryGraphService {
             }
             currentPage++;
         }
+        updateGraphInfo();
     }
 
 
