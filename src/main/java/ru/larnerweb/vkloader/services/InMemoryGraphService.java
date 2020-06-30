@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class InMemoryGraphService {
 
+    @SuppressWarnings("unused")
     @Autowired
     FriendListBDRepository friendsListBDRepository;
 
@@ -34,7 +35,7 @@ public class InMemoryGraphService {
     private static int appGraphSize;
     public static int nodeCount;
     public static long edgeCount;
-    Kryo kryo;
+    final Kryo kryo;
 
     @Value("${app.graph.storePath}")
     public void setStorePath(String storePath) {
@@ -54,7 +55,7 @@ public class InMemoryGraphService {
 
 
     /**
-     * Check if selected Id exests in array
+     * Check if selected Id exists in array
      * @param id - id to search
      * @return true or false
      */
@@ -141,9 +142,9 @@ public class InMemoryGraphService {
 
     /**
      *
-     * @param trace
-     * @param id
-     * @return
+     * @param trace - Map of {'id': 'parent'}
+     * @param id - starting Id
+     * @return - list of person Id's
      */
     private List<Integer> traverse(Map<Integer, Integer> trace, int id){
         LinkedList<Integer> result = new LinkedList<>();
@@ -249,6 +250,9 @@ public class InMemoryGraphService {
      * Update nodeCount and edgeCount variables
      */
     private void updateGraphInfo() {
+        nodeCount = 0;
+        edgeCount = 0;
+
         log.info("Updating graph info...");
         for (int[] i : adjacencyList) {
             if (i != null) {

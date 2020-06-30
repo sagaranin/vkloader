@@ -2,13 +2,24 @@ package ru.larnerweb.vkloader.entity.vk;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UsersGet {
+import java.io.Serializable;
+
+@JsonIgnoreProperties(ignoreUnknown = false)
+public class UsersGet  implements Serializable {
     int id;
     String first_name;
     String last_name;
     String domain;
     String photo_50;
+    String photo_100;
+
+    public String getPhoto_100() {
+        return photo_100;
+    }
+
+    public void setPhoto_100(String photo_100) {
+        this.photo_100 = photo_100;
+    }
 
     public int getId() {
         return id;

@@ -7,11 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.larnerweb.vkloader.entity.vk.FriendsGetResponse;
+import ru.larnerweb.vkloader.entity.vk.UsersGet;
 import ru.larnerweb.vkloader.entity.vk.UsersGetResponse;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * vk api client
@@ -57,6 +60,22 @@ public class VKClientService {
         log.info("users.get result: {}", ugr);
         if (ugr != null && ugr.getResponse() != null){
             return ugr.getResponse().get(0).getId();
+        } else {
+            return null;
+        }
+    }
+
+    public List<UsersGet> getDataByIds(List<Integer> ids) {
+        String key = keys.split(",")[getRandomNumberInRange(0, keys.split(",").length-1)];
+
+        UsersGetResponse ugr = restTemplate.getForObject(
+                "https://api.vk.com/method/users.get?user_ids={id}&fields=domain,photo_50,photo_100&access_token={key}&v=5.110",
+                UsersGetResponse.class,
+                ids.stream().map(String::valueOf).collect(Collectors.joining(",")), key);
+
+        log.info("users.get result: {}", ugr);
+        if (ugr != null && ugr.getResponse() != null){
+            return ugr.getResponse();
         } else {
             return null;
         }

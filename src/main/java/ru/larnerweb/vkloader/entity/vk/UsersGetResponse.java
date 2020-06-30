@@ -2,10 +2,11 @@ package ru.larnerweb.vkloader.entity.vk;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.io.Serializable;
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UsersGetResponse {
+@JsonIgnoreProperties(ignoreUnknown = false)
+public class UsersGetResponse  implements Serializable {
 
     List<UsersGet> response;
 

@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
 
-@JsonIgnoreProperties(ignoreUnknown = false)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FriendsGetResponse  implements Serializable {
-    Response response;
+    FriendsGet response;
 
-    public Response getResponse() {
+    public FriendsGet getResponse() {
         return response;
     }
 
-    public void setResponse(Response response) {
+    public void setResponse(FriendsGet response) {
         this.response = response;
     }
 
