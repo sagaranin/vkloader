@@ -11,33 +11,20 @@ pipeline {
                 checkout scm
             }
         }
-
-        stage('Build Jar') {
+        stage('Build App and Image') {
             steps {
                 sh 'mvn clean compile package'
-            }
-        }
-
-        stage('Build container') {
-            steps {
                 sh 'docker build --no-cache --force-rm=true -t sagaranin/vkloader .'
             }
         }
-
-        stage('Docker login') {
+        stage('Docker login and push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub_sagaranin', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
                 }
-            }
-        }
-
-        stage('Docker push') {
-            steps {
                 sh 'docker push sagaranin/vkloader'
             }
         }
-
         stage('Clean') {
             steps {
                 sh 'mvn clean'
