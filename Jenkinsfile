@@ -1,11 +1,15 @@
 pipeline {
-    agent {
-        docker { image 'docker:latest' }
+    agent any
+    options {
+        timestamps()
+        disableConcurrentBuilds()
     }
+
     stages {
         stage('Prepare') {
             steps {
-                sh 'yum install -y git'
+                echo 'Preparing...'
+                checkout scm
             }
         }
     }
