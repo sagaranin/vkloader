@@ -7,4 +7,4 @@ COPY src/main/resources/application-test.properties ./application.properties
 
 EXPOSE 9000
 
-ENTRYPOINT ["java", "-jar", "-Xms4G", "-Xmx8G", "app.jar"]
+ENTRYPOINT ["java", "-Xms4G", "-Xmx8G", "-jar", "app.jar"]

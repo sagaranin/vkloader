@@ -17,7 +17,7 @@ pipeline {
                 sh 'docker build --no-cache --force-rm=true -t sagaranin/vkloader .'
             }
         }
-        stage('Docker login and push') {
+        stage('Docker Hub login and push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub_sagaranin', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
