@@ -30,7 +30,7 @@ pipeline {
         stage('Docker login') {
             steps {
                 echo 'Docker login...'
-                withCredentials([usernamePassword(credentialsId: 'gitlab_sagaranin', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub_sagaranin', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'docker login -u $USERNAME -p $PASSWORD'
                 }
             }
@@ -47,6 +47,7 @@ pipeline {
             steps {
                 echo 'Clean...'
                 sh 'mvn clean'
+                sh 'docker image rm sagaranin/vkloader'
             }
         }
     }
