@@ -23,7 +23,7 @@ pipeline {
         stage('Build container') {
             steps {
                 echo 'Build container...'
-                sh 'docker build --no-cache --force-rm -t sagaranin/vkloader .'
+                sh 'docker build --no-cache --force-rm=true -t sagaranin/vkloader .'
             }
         }
 
