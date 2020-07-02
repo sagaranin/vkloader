@@ -12,10 +12,10 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build Jar...') {
+        stage('Build Jar') {
             steps {
                 echo 'Build Jar...'
-                mvn clean compile package
+                sh 'mvn clean compile package'
             }
         }
     }
