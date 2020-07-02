@@ -27,14 +27,17 @@ pipeline {
             }
         }
 
-        stage('Docker push') {
+        stage('Docker login') {
             steps {
                 echo 'Docker login...'
-                sh 'docker logout'
                 withCredentials([usernamePassword(credentialsId: 'dockerhub_sagaranin', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'docker login -u $USERNAME -p $PASSWORD'
                 }
+            }
+        }
 
+        stage('Docker push') {
+            steps {
                 echo 'Docker push...'
                 sh 'docker push sagaranin/vkloader'
             }
