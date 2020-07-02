@@ -30,6 +30,7 @@ pipeline {
         stage('Docker push') {
             steps {
                 echo 'Docker login...'
+                sh 'docker logout'
                 withCredentials([usernamePassword(credentialsId: 'dockerhub_sagaranin', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'docker login -u $USERNAME -p $PASSWORD'
                 }
