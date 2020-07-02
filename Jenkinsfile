@@ -28,9 +28,9 @@ pipeline {
         }
 
         stage('Docker login') {
-            withCredentials([usernamePassword(credentialsId: 'gitlab_sagaranin', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                steps {
-                    echo 'Docker login...'
+            steps {
+                echo 'Docker login...'
+                withCredentials([usernamePassword(credentialsId: 'gitlab_sagaranin', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'docker login -u $USERNAME -p $PASSWORD'
                 }
             }
